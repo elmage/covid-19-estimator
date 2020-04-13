@@ -1,6 +1,9 @@
 <?php
 
+require_once('EstimatorClass.php');
+
 function covid19ImpactEstimator($data)
 {
-  return $data;
+    $estimatorObj = new Estimator($data);
+    return $data;
 }
