@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Elmage\CovidEstimator\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 

@@ -10,12 +10,12 @@
       "src/estimator.php"
     ],
     "psr-4": {
-      "App\\": "src/"
+      "Elmage\\CovidEstimator\\App\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\": "tests/"
+      "Elmage\\CovidEstimator\\Tests\\": "tests/"
     }
   }
 }

@@ -1,6 +1,7 @@
 <?php
+namespace Elmage\CovidEstimator\App;
 
-use App\Classes\Estimator;
+use Elmage\CovidEstimator\App\Classes\Estimator;
 
 function covid19ImpactEstimator($data)
 {

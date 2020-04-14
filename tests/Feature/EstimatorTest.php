@@ -1,10 +1,9 @@
 <?php
 
-namespace Tests\Feature;
+namespace Elmage\CovidEstimator\Tests\Feature;
 
-use App\Classes\Estimator;
-use App\Exceptions\InvalidNumberException;
-use Tests\TestCase;
+use Elmage\CovidEstimator\App\Classes\Estimator;
+use Elmage\CovidEstimator\Tests\TestCase;
 
 class EstimatorTest extends TestCase
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Classes;
+namespace Elmage\CovidEstimator\App\Classes;
 
-use App\Exceptions\InvalidNumberException;
+use Elmage\CovidEstimator\App\Exceptions\InvalidNumberException;
 
 class Estimator
 {
