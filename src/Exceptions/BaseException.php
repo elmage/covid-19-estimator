@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Estimator;
+namespace App\Exceptions;
 
 class BaseException extends \Exception
 {

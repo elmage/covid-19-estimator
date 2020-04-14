@@ -1,6 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Classes;
+
+use App\Exceptions\InvalidNumberException;
 
 class Estimator
 {
@@ -45,6 +47,7 @@ class Estimator
         $this->calculateHospitalBedsByRequestedTime();
         $this->calculateCasesForICUByRequestedTime();
         $this->calculateCasesForVentilatorsByRequestedTime();
+        $this->calculateDollarsInFlight();
     }
 
 
@@ -53,7 +56,7 @@ class Estimator
      *---------------------------------------------------------------------------------------------*/
 
 
-    protected function calculateCurrentlyInfected()
+    public function calculateCurrentlyInfected()
     {
         $input = $this->getInput();
         $impact = $this->getImpact();
@@ -75,7 +78,7 @@ class Estimator
         }
     }
 
-    protected function calculateInfectionsByRequestedTime()
+    public function calculateInfectionsByRequestedTime()
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -85,17 +88,20 @@ class Estimator
             $multiplier = $this->calculateInfectionMultiplier();
 
             if (array_key_exists('currentlyInfected', $impact)) {
-                $impact['infectionsByRequestedTime,'] = $this->formatAsInt(
+                $impact['infectionsByRequestedTime'] = $this->formatAsInt(
                     (int) $impact['currentlyInfected'] *
                     $multiplier
                 );
 
                 $this->setImpact($impact);
+            } else {
+                $this->calculateCurrentlyInfected();
+                return $this->calculateInfectionsByRequestedTime();
             }
 
             if (array_key_exists('currentlyInfected', $severeImpact)) {
 
-                $severeImpact['infectionsByRequestedTime,'] = $this->formatAsInt(
+                $severeImpact['infectionsByRequestedTime'] = $this->formatAsInt(
                     (int) $severeImpact['currentlyInfected'] *
                     $multiplier
                 );
@@ -107,7 +113,7 @@ class Estimator
         }
     }
 
-    protected function calculateSevereCasesByRequestedTime()
+    public function calculateSevereCasesByRequestedTime()
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -116,6 +122,9 @@ class Estimator
             if (array_key_exists('infectionsByRequestedTime', $impact)) {
                 $impact['severeCasesByRequestedTime'] = $this->formatAsInt((int) $impact['infectionsByRequestedTime'] * (15 / 100));
                 $this->setImpact($impact);
+            } else {
+                $this->calculateInfectionsByRequestedTime();
+                return $this->calculateSevereCasesByRequestedTime();
             }
 
             if (array_key_exists('infectionsByRequestedTime', $severeImpact)) {
@@ -126,7 +135,7 @@ class Estimator
         }
     }
 
-    protected function calculateHospitalBedsByRequestedTime()
+    public function calculateHospitalBedsByRequestedTime()
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -136,7 +145,7 @@ class Estimator
             $beds = $this->calculateBedAvailability();
 
 
-            if (array_key_exists('severeCasesByRequestedTime,', $impact)) {
+            if (array_key_exists('severeCasesByRequestedTime', $impact)) {
 
                 // If the severe cases are more less than or equal to the number of available beds,
                 // set 'hospitalBedsByRequestedTime' to the number of available beds
@@ -149,10 +158,13 @@ class Estimator
                 );
 
                 $this->setImpact($impact);
+            } else {
+                $this->calculateSevereCasesByRequestedTime();
+                return $this->calculateHospitalBedsByRequestedTime();
             }
 
 
-            if (array_key_exists('severeCasesByRequestedTime,', $severeImpact)) {
+            if (array_key_exists('severeCasesByRequestedTime', $severeImpact)) {
 
                 // If the severe cases are more less than or equal to the number of available beds,
                 // set 'hospitalBedsByRequestedTime' to the number of available beds
@@ -167,13 +179,11 @@ class Estimator
                 $this->setSevereImpact($severeImpact);
             }
 
-
-
         } catch (InvalidNumberException $exception) {
         }
     }
 
-    protected function calculateCasesForICUByRequestedTime()
+    public function calculateCasesForICUByRequestedTime()
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -187,6 +197,9 @@ class Estimator
                 );
 
                 $this->setImpact($impact);
+            } else {
+                $this->calculateInfectionsByRequestedTime();
+                return $this->calculateCasesForICUByRequestedTime();
             }
 
             if (array_key_exists('currentlyInfected', $severeImpact)) {
@@ -202,7 +215,7 @@ class Estimator
         }
     }
 
-    protected function calculateCasesForVentilatorsByRequestedTime()
+    public function calculateCasesForVentilatorsByRequestedTime()
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -216,6 +229,9 @@ class Estimator
                 );
 
                 $this->setImpact($impact);
+            } else {
+                $this->calculateInfectionsByRequestedTime();
+                return $this->calculateCasesForVentilatorsByRequestedTime();
             }
 
             if (array_key_exists('currentlyInfected', $severeImpact)) {
@@ -231,30 +247,46 @@ class Estimator
         }
     }
 
-    protected function calculateDollarsInFlight()
+    public function calculateDollarsInFlight()
     {
         $input = $this->getInput();
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
 
         try {
-            if (array_key_exists('infectionsByRequestedTime', $impact)) {
+            $days = $this->calculateDays();
+
+            if (array_key_exists('infectionsByRequestedTime', $impact) && array_key_exists('region', $input)) {
                 $impact['dollarsInFlight'] = $this->formatAsInt(
                     (
                         $impact['infectionsByRequestedTime'] *
-                        (float) $input['avgDailyIncomePopulation'] *
-                        (float) $input['avgDailyIncomeInUSD']
-                    ) /
-                    $this->calculateDays()
+                        (float) $input['region']['avgDailyIncomePopulation'] *
+                        (float) $input['region']['avgDailyIncomeInUSD']
+                    )
+                    / $days
                 );
 
                 $this->setImpact($impact);
+            } else {
+                if (!array_key_exists('infectionsByRequestedTime', $impact)) {
+                    $this->calculateInfectionsByRequestedTime();
+                    return $this->calculateDollarsInFlight();
+                }
             }
 
-            if (array_key_exists('infectionsByRequestedTime', $severeImpact)) {
-                $severeImpact['severeCasesByRequestedTime'] = $this->formatAsInt((int) $severeImpact['infectionsByRequestedTime'] * (15 / 100));
+            if (array_key_exists('infectionsByRequestedTime', $severeImpact) && array_key_exists('region', $input)) {
+                $severeImpact['dollarsInFlight'] = $this->formatAsInt(
+                    (
+                        $severeImpact['infectionsByRequestedTime'] *
+                        (float) $input['region']['avgDailyIncomePopulation'] *
+                        (float) $input['region']['avgDailyIncomeInUSD']
+                    )
+                    / $days
+                );
+
                 $this->setSevereImpact($severeImpact);
             }
+
         } catch (InvalidNumberException $exception) {
         }
     }
