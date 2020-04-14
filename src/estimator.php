@@ -1,5 +1,4 @@
 <?php
-namespace Elmage\CovidEstimator\App;
 
 use Elmage\CovidEstimator\App\Classes\Estimator;
 
