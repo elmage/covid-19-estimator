@@ -140,14 +140,14 @@ class EstimatorTest extends TestCase
         $estimator = new Estimator($this->testInput);
         $got = $estimator->getBedAvailability();
 
-        $this->assertIsInt($got, "Expected integer, got ".gettype($got));
-        $this->assertEquals(35, $got, "Expected 35 got ".$got);
+        $this->assertIsFloat($got, "Expected float, got ".gettype($got));
+        $this->assertEquals(35/100, $got, "Expected 35 got ".$got);
 
         $estimator->setBedAvailability(20);
         $got = $estimator->getBedAvailability();
 
-        $this->assertIsInt($got, "Expected integer, got ".gettype($got));
-        $this->assertEquals(20, $got, "Expected 20 got ".$got);
+        $this->assertIsFloat($got, "Expected float, got ".gettype($got));
+        $this->assertEquals(20/100, $got, "Expected 20 got ".$got);
     }
 
     public function testGetAndSetRequireVentilators()
@@ -155,14 +155,44 @@ class EstimatorTest extends TestCase
         $estimator = new Estimator($this->testInput);
         $got = $estimator->getRequireVentilators();
 
-        $this->assertIsInt($got, "Expected integer, got ".gettype($got));
-        $this->assertEquals(2, $got, "Expected 2 got ".$got);
+        $this->assertIsFloat($got, "Expected float, got ".gettype($got));
+        $this->assertEquals(2/100, $got, "Expected 2 got ".$got);
 
         $estimator->setRequireVentilators(20);
         $got = $estimator->getRequireVentilators();
 
-        $this->assertIsInt($got, "Expected integer, got ".gettype($got));
-        $this->assertEquals(20, $got, "Expected 20 got ".$got);
+        $this->assertIsFloat($got, "Expected float, got ".gettype($got));
+        $this->assertEquals(20/100, $got, "Expected 20 got ".$got);
+    }
+
+    public function testGetAndSetRequireHospitalization()
+    {
+        $estimator = new Estimator($this->testInput);
+        $got = $estimator->getRequireHospitalization();
+
+        $this->assertIsFloat($got, "Expected float, got ".gettype($got));
+        $this->assertEquals(15/100, $got, "Expected 2 got ".$got);
+
+        $estimator->setRequireVentilators(20);
+        $got = $estimator->getRequireVentilators();
+
+        $this->assertIsFloat($got, "Expected float, got ".gettype($got));
+        $this->assertEquals(20/100, $got, "Expected 20 got ".$got);
+    }
+
+    public function testGetAndSetICUcare()
+    {
+        $estimator = new Estimator($this->testInput);
+        $got = $estimator->getICUcare();
+
+        $this->assertIsFloat($got, "Expected float, got ".gettype($got));
+        $this->assertEquals(5/100, $got, "Expected 2 got ".$got);
+
+        $estimator->setICUcare(20);
+        $got = $estimator->getICUcare();
+
+        $this->assertIsFloat($got, "Expected float, got ".gettype($got));
+        $this->assertEquals(20/100, $got, "Expected 20 got ".$got);
     }
 
     public function testCalculateDollarsInFlight()
