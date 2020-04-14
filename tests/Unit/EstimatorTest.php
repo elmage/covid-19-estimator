@@ -78,13 +78,7 @@ class EstimatorTest extends TestCase
         $estimator = new Estimator($input);
         $got = $estimator->calculateBedAvailability();
 
-        $this->assertIsInt($got, "Expected integer, got ".gettype($got));
-
-        unset($input['totalHospitalBeds']);
-        $estimator = new Estimator($input);
-        $got = $estimator->calculateBedAvailability();
-        $this->assertEquals(0, $got, "Expected 0, got ".$got);
-
+        $this->assertIsNumeric($got, "Expected number, got ".gettype($got));
     }
 
     public function testCalculateInfectionMultiplierReturnsInteger()

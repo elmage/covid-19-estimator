@@ -158,10 +158,6 @@ class Estimator
 
             if (array_key_exists('severeCasesByRequestedTime', $impact)) {
 
-                // If the severe cases are more less than or equal to the number of available beds,
-                // set 'hospitalBedsByRequestedTime' to the number of available beds
-                // else set to the excess of 'severeCasesByRequestedTime'
-
                 $impact['hospitalBedsByRequestedTime'] = $this->formatAsInt(
                     $beds - $impact['severeCasesByRequestedTime']
                 );
@@ -174,10 +170,6 @@ class Estimator
 
 
             if (array_key_exists('severeCasesByRequestedTime', $severeImpact)) {
-
-                // If the severe cases are more less than or equal to the number of available beds,
-                // set 'hospitalBedsByRequestedTime' to the number of available beds
-                // else set to the excess of 'severeCasesByRequestedTime'
 
                 $severeImpact['hospitalBedsByRequestedTime'] = $this->formatAsInt(
                     $beds - $severeImpact['severeCasesByRequestedTime']
@@ -310,15 +302,11 @@ class Estimator
      * @return int
      * @throws InvalidNumberException
      */
-    public function calculateBedAvailability(): int
+    public function calculateBedAvailability()
     {
         $input = $this->getInput();
 
-        if (array_key_exists('totalHospitalBeds', $input)) {
-            return $this->formatAsInt($input['totalHospitalBeds'] * $this->bedAvailability);
-        }
-
-        return 0;
+        return $input['totalHospitalBeds'] * $this->bedAvailability;
     }
 
 
