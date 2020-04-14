@@ -72,8 +72,8 @@ class Estimator
 
             try {
 
-                $impact['currentlyInfected'] = $this->formatAsInt((int) $input['reportedCases'] * 10);
-                $severeImpact['currentlyInfected'] = $this->formatAsInt((int) $input['reportedCases'] * 50);
+                $impact['currentlyInfected'] = $this->formatAsInt($input['reportedCases'] * 10);
+                $severeImpact['currentlyInfected'] = $this->formatAsInt($input['reportedCases'] * 50);
 
                 $this->setImpact($impact);
                 $this->setSevereImpact($severeImpact);
@@ -94,7 +94,7 @@ class Estimator
 
             if (array_key_exists('currentlyInfected', $impact)) {
                 $impact['infectionsByRequestedTime'] = $this->formatAsInt(
-                    (int) $impact['currentlyInfected'] *
+                    $impact['currentlyInfected'] *
                     $multiplier
                 );
 
@@ -107,7 +107,7 @@ class Estimator
             if (array_key_exists('currentlyInfected', $severeImpact)) {
 
                 $severeImpact['infectionsByRequestedTime'] = $this->formatAsInt(
-                    (int) $severeImpact['currentlyInfected'] *
+                    $severeImpact['currentlyInfected'] *
                     $multiplier
                 );
 
@@ -126,7 +126,7 @@ class Estimator
         try {
             if (array_key_exists('infectionsByRequestedTime', $impact)) {
                 $impact['severeCasesByRequestedTime'] = $this->formatAsInt(
-                    (int) $impact['infectionsByRequestedTime'] *
+                    $impact['infectionsByRequestedTime'] *
                     $this->requireHospitalization
                 );
                 $this->setImpact($impact);
@@ -137,7 +137,7 @@ class Estimator
 
             if (array_key_exists('infectionsByRequestedTime', $severeImpact)) {
                 $severeImpact['severeCasesByRequestedTime'] = $this->formatAsInt(
-                    (int) $severeImpact['infectionsByRequestedTime'] *
+                    $severeImpact['infectionsByRequestedTime'] *
                     $this->requireHospitalization
                 );
                 $this->setSevereImpact($severeImpact);
@@ -163,9 +163,7 @@ class Estimator
                 // else set to the excess of 'severeCasesByRequestedTime'
 
                 $impact['hospitalBedsByRequestedTime'] = $this->formatAsInt(
-                        //(int) $impact['severeCasesByRequestedTime'] <= $beds ?
-                        //$beds :
-                        $beds - (int) $impact['severeCasesByRequestedTime']
+                    $beds - $impact['severeCasesByRequestedTime']
                 );
 
                 $this->setImpact($impact);
@@ -182,9 +180,7 @@ class Estimator
                 // else set to the excess of 'severeCasesByRequestedTime'
 
                 $severeImpact['hospitalBedsByRequestedTime'] = $this->formatAsInt(
-                        //(int) $severeImpact['severeCasesByRequestedTime'] <= $beds ?
-                        //$beds :
-                        $beds - (int) $severeImpact['severeCasesByRequestedTime']
+                    $beds - $severeImpact['severeCasesByRequestedTime']
                 );
 
                 $this->setSevereImpact($severeImpact);
@@ -319,7 +315,7 @@ class Estimator
         $input = $this->getInput();
 
         if (array_key_exists('totalHospitalBeds', $input)) {
-            return $this->formatAsInt((int) $input['totalHospitalBeds'] * ($this->bedAvailability));
+            return $this->formatAsInt($input['totalHospitalBeds'] * $this->bedAvailability);
         }
 
         return 0;
@@ -331,17 +327,17 @@ class Estimator
      * @return int
      * @throws InvalidNumberException
      */
-    public function calculateDays(): int
+    public function calculateDays()
     {
         $input = $this->getInput();
 
         if (array_key_exists('periodType', $input)) {
-            if ($input['periodType'] === "weeks") {
-                return $this->formatAsInt($input['timeToElapse'] * 7);
-            } elseif ($input['periodType'] === "months") {
-                return $this->formatAsInt($input['timeToElapse'] * 30);
+            if ($input['periodType'] == "weeks") {
+                return $input['timeToElapse'] * 7;
+            } elseif ($input['periodType'] == "months") {
+                return $input['timeToElapse'] * 30;
             } else {
-                return $this->formatAsInt($input['timeToElapse']);
+                return $input['timeToElapse'];
             }
         }
 
@@ -353,12 +349,12 @@ class Estimator
      * @return int
      * @throws InvalidNumberException
      */
-    public function calculateInfectionMultiplier(): int
+    public function calculateInfectionMultiplier()
     {
         $days = $this->calculateDays();
         $factor = $this->formatAsInt($days / 3);
 
-        return $this->formatAsInt(pow(2, $factor));
+        return pow(2, $factor);
     }
 
     /**
