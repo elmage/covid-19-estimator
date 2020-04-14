@@ -336,10 +336,10 @@ class Estimator
         $input = $this->getInput();
 
         if (array_key_exists('periodType', $input)) {
-            if ($input['periodType'] == 'weeks') {
-                return $this->formatAsInt($input['timeToElapse']) * 7;
-            } elseif ($input['periodType'] == 'months') {
-                return $this->formatAsInt($input['timeToElapse']) * 30;
+            if ($input['periodType'] === "weeks") {
+                return $this->formatAsInt($input['timeToElapse'] * 7);
+            } elseif ($input['periodType'] === "months") {
+                return $this->formatAsInt($input['timeToElapse'] * 30);
             } else {
                 return $this->formatAsInt($input['timeToElapse']);
             }
