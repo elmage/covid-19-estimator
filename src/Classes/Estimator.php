@@ -308,7 +308,7 @@ class Estimator
         $input = $this->getInput();
 
         if (array_key_exists('totalHospitalBeds', $input)) {
-            return $this->formatAsInt((int) $input['totalHospitalBeds'] * ($this->bedAvailability / 100)) ;
+            return (int) $input['totalHospitalBeds'] * $this->formatAsInt(($this->bedAvailability / 100)) ;
         }
 
         return 0;
