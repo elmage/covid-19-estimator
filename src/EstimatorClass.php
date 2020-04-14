@@ -6,7 +6,28 @@ class Estimator
      * output containing estimations
      * @var array
      */
-    public $data = [];
+    private $data = [];
+
+    /**
+     * bed availability in hospitals for severe COVID-19 positive patients.
+     * @var int
+     */
+    private $bedAvailability = 35;
+
+    /**
+     * the estimated number of severe positive cases
+    that will require ICU care.
+     * @var int
+     */
+    private $ICUcare = 5;
+
+    /**
+     * the estimated number of severe positive cases that will require ventilators.
+     * @var int
+     */
+    private $requireVentilators = 2;
+
+
 
 
     public function __construct(array $input)
@@ -14,11 +35,21 @@ class Estimator
         $this->data['data'] = $input;
     }
 
-    public function formatOutput()
+    public function computeResponse()
     {
         $this->calculateCurrentlyInfected();
         $this->calculateInfectionsByRequestedTime();
+        $this->calculateSevereCasesByRequestedTime();
+        $this->calculateHospitalBedsByRequestedTime();
+        $this->calculateCasesForICUByRequestedTime();
+        $this->calculateCasesForVentilatorsByRequestedTime();
     }
+
+
+    /*----------------------------------------------------------------------------------------------
+     *                                  CALCULATOR METHODS
+     *---------------------------------------------------------------------------------------------*/
+
 
     protected function calculateCurrentlyInfected()
     {
@@ -31,8 +62,8 @@ class Estimator
 
             try {
 
-                $impact['currentlyInfected'] = $this->formatAsInt($input['reportedCases'] * 10);
-                $severeImpact['currentlyInfected'] = $this->formatAsInt($input['reportedCases'] * 50);
+                $impact['currentlyInfected'] = $this->formatAsInt((int) $input['reportedCases'] * 10);
+                $severeImpact['currentlyInfected'] = $this->formatAsInt((int) $input['reportedCases'] * 50);
 
                 $this->setImpact($impact);
                 $this->setSevereImpact($severeImpact);
@@ -42,43 +73,192 @@ class Estimator
         }
     }
 
-
     protected function calculateInfectionsByRequestedTime()
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
 
-        if (array_key_exists('currentlyInfected', $impact)) {
+        try {
 
-            try {
+            $multiplier = $this->calculateInfectionMultiplier();
 
-                $impact['currentlyInfected'] = $this->formatAsInt(
-                    $impact['currentlyInfected'] *
-                    $this->calculateInfectionMultiplier()
+            if (array_key_exists('currentlyInfected', $impact)) {
+                $impact['infectionsByRequestedTime,'] = $this->formatAsInt(
+                    (int) $impact['currentlyInfected'] *
+                    $multiplier
                 );
 
                 $this->setImpact($impact);
-
-            } catch (InvalidNumberException $exception) {
             }
 
-        }
+            if (array_key_exists('currentlyInfected', $severeImpact)) {
 
-        if (array_key_exists('currentlyInfected', $severeImpact)) {
-
-            try {
-
-                $severeImpact['currentlyInfected'] = $this->formatAsInt(
-                    $severeImpact['currentlyInfected'] *
-                    $this->calculateInfectionMultiplier()
+                $severeImpact['infectionsByRequestedTime,'] = $this->formatAsInt(
+                    (int) $severeImpact['currentlyInfected'] *
+                    $multiplier
                 );
 
                 $this->setSevereImpact($severeImpact);
-
-            } catch (InvalidNumberException $exception) {
             }
 
+        } catch (InvalidNumberException $exception) {
         }
+    }
+
+    protected function calculateSevereCasesByRequestedTime()
+    {
+        $impact = $this->getImpact();
+        $severeImpact = $this->getSevereImpact();
+
+        try {
+            if (array_key_exists('infectionsByRequestedTime', $impact)) {
+                $impact['severeCasesByRequestedTime'] = $this->formatAsInt((int) $impact['infectionsByRequestedTime'] * (15 / 100));
+                $this->setImpact($impact);
+            }
+
+            if (array_key_exists('infectionsByRequestedTime', $severeImpact)) {
+                $severeImpact['severeCasesByRequestedTime'] = $this->formatAsInt((int) $severeImpact['infectionsByRequestedTime'] * (15 / 100));
+                $this->setSevereImpact($severeImpact);
+            }
+        } catch (InvalidNumberException $exception) {
+        }
+    }
+
+    protected function calculateHospitalBedsByRequestedTime()
+    {
+        $impact = $this->getImpact();
+        $severeImpact = $this->getSevereImpact();
+
+        try {
+            //calculate estimated number of available beds from input data
+            $beds = $this->calculateBedAvailability();
+
+
+            if (array_key_exists('severeCasesByRequestedTime,', $impact)) {
+
+                // If the severe cases are more less than or equal to the number of available beds,
+                // set 'hospitalBedsByRequestedTime' to the number of available beds
+                // else set to the excess of 'severeCasesByRequestedTime'
+
+                $impact['hospitalBedsByRequestedTime'] = $this->formatAsInt(
+                    (int) $impact['severeCasesByRequestedTime'] <= $beds ?
+                        $beds :
+                        $beds - (int) $impact['severeCasesByRequestedTime']
+                );
+
+                $this->setImpact($impact);
+            }
+
+
+            if (array_key_exists('severeCasesByRequestedTime,', $severeImpact)) {
+
+                // If the severe cases are more less than or equal to the number of available beds,
+                // set 'hospitalBedsByRequestedTime' to the number of available beds
+                // else set to the excess of 'severeCasesByRequestedTime'
+
+                $severeImpact['hospitalBedsByRequestedTime'] = $this->formatAsInt(
+                    (int) $severeImpact['severeCasesByRequestedTime'] <= $beds ?
+                        $beds :
+                        $beds - (int) $severeImpact['severeCasesByRequestedTime']
+                );
+
+                $this->setSevereImpact($severeImpact);
+            }
+
+
+
+        } catch (InvalidNumberException $exception) {
+        }
+    }
+
+    protected function calculateCasesForICUByRequestedTime()
+    {
+        $impact = $this->getImpact();
+        $severeImpact = $this->getSevereImpact();
+
+        try {
+
+            if (array_key_exists('infectionsByRequestedTime', $impact)) {
+                $impact['casesForICUByRequestedTime'] = $this->formatAsInt(
+                    (int) $impact['infectionsByRequestedTime'] *
+                    ($this->ICUcare / 100)
+                );
+
+                $this->setImpact($impact);
+            }
+
+            if (array_key_exists('currentlyInfected', $severeImpact)) {
+                $severeImpact['casesForICUByRequestedTime'] = $this->formatAsInt(
+                    (int) $severeImpact['infectionsByRequestedTime'] *
+                    ($this->ICUcare / 100)
+                );
+
+                $this->setSevereImpact($severeImpact);
+            }
+
+        } catch (InvalidNumberException $exception) {
+        }
+    }
+
+    protected function calculateCasesForVentilatorsByRequestedTime()
+    {
+        $impact = $this->getImpact();
+        $severeImpact = $this->getSevereImpact();
+
+        try {
+
+            if (array_key_exists('infectionsByRequestedTime', $impact)) {
+                $impact['casesForVentilatorsByRequestedTime'] = $this->formatAsInt(
+                    (int) $impact['infectionsByRequestedTime'] *
+                    ($this->requireVentilators / 100)
+                );
+
+                $this->setImpact($impact);
+            }
+
+            if (array_key_exists('currentlyInfected', $severeImpact)) {
+                $severeImpact['casesForVentilatorsByRequestedTime'] = $this->formatAsInt(
+                    (int) $severeImpact['infectionsByRequestedTime'] *
+                    ($this->requireVentilators / 100)
+                );
+
+                $this->setSevereImpact($severeImpact);
+            }
+
+        } catch (InvalidNumberException $exception) {
+        }
+    }
+
+    protected function calculateDollarsInFlight()
+    {
+        $input = $this->getInput();
+        $impact = $this->getImpact();
+        $severeImpact = $this->getSevereImpact();
+
+
+    }
+
+
+
+    /*----------------------------------------------------------------------------------------------
+     *                                  HELPER METHODS
+     *---------------------------------------------------------------------------------------------*/
+
+
+    /**
+     * Calculate estimated available beds
+     * @return int
+     * @throws InvalidNumberException
+     */
+    protected function calculateBedAvailability(): int
+    {
+        $input = $this->getInput();
+
+        if (array_key_exists('totalHospitalBeds', $input)) {
+            return $this->formatAsInt((int) $input['totalHospitalBeds'] * ($this->bedAvailability / 100)) ;
+        }
+
+        return 0;
     }
 
 
@@ -116,6 +296,26 @@ class Estimator
 
         return $this->formatAsInt(pow(2, $factor));
     }
+
+    /**
+     * remove decimal part of float like numbers with int typecast
+     * @param $number
+     * @return int
+     * @throws InvalidNumberException
+     */
+    private function formatAsInt($number): int
+    {
+        if (!is_numeric($number)) {
+            throw new InvalidNumberException("{$number} is not a valid number");
+        }
+
+        return (int)$number;
+    }
+
+
+    /*----------------------------------------------------------------------------------------------
+     *                                  GETTERS AND SETTERS
+     *---------------------------------------------------------------------------------------------*/
 
 
     /**
@@ -155,13 +355,12 @@ class Estimator
 
     /**
      * set 'impact' in data property
-     * @param array $impact
+     * @param array $severeImpact
      */
     public function setSevereImpact(array $severeImpact)
     {
-        $this->data['severeImpact'] = $impact;
+        $this->data['severeImpact'] = $severeImpact;
     }
-
 
     /**
      * get input data from data property
@@ -172,18 +371,28 @@ class Estimator
         return $this->data['data'];
     }
 
-    /**
-     * remove decimal part of float like numbers with int typecast
-     * @param $number
-     * @return int
-     * @throws InvalidNumberException
-     */
-    private function formatAsInt($number): int
+    public function getBedAvailability(): int
     {
-        if (!is_numeric($number)) {
-            throw new InvalidNumberException("{$number} is not a valid number");
-        }
+        return $this->bedAvailability;
+    }
 
-        return (int)$number;
+    public function setBedAvailability(int $bedAvailability)
+    {
+        $this->bedAvailability = $bedAvailability;
+    }
+
+    public function getRequireVentilators(): int
+    {
+        return $this->requireVentilators;
+    }
+
+    public function setRequireVentilators(int $requireVentilators)
+    {
+        $this->requireVentilators = $requireVentilators;
+    }
+
+    public function getData(): array
+    {
+        return $this->data;
     }
 }
