@@ -1,4 +1,12 @@
 {
+  "name": "elmage/covid-19-estimator",
+  "type": "library",
+  "description": "a novelty COVID-19 infections estimator",
+  "license": "MIT",
+  "keywords": [
+    "covid",
+    "covid-19"
+  ],
   "require-dev": {
     "phpunit/phpunit": "^9.1"
   },
