@@ -1,6 +1,6 @@
 <?php
 
-require_once('EstimatorClass.php');
+use App\Estimator;
 
 function covid19ImpactEstimator($data)
 {

@@ -1,5 +1,7 @@
 <?php
 
+namespace App;
+
 class Estimator
 {
     /**
@@ -235,7 +237,26 @@ class Estimator
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
 
+        try {
+            if (array_key_exists('infectionsByRequestedTime', $impact)) {
+                $impact['dollarsInFlight'] = $this->formatAsInt(
+                    (
+                        $impact['infectionsByRequestedTime'] *
+                        (float) $input['avgDailyIncomePopulation'] *
+                        (float) $input['avgDailyIncomeInUSD']
+                    ) /
+                    $this->calculateDays()
+                );
 
+                $this->setImpact($impact);
+            }
+
+            if (array_key_exists('infectionsByRequestedTime', $severeImpact)) {
+                $severeImpact['severeCasesByRequestedTime'] = $this->formatAsInt((int) $severeImpact['infectionsByRequestedTime'] * (15 / 100));
+                $this->setSevereImpact($severeImpact);
+            }
+        } catch (InvalidNumberException $exception) {
+        }
     }
 
 
@@ -250,7 +271,7 @@ class Estimator
      * @return int
      * @throws InvalidNumberException
      */
-    protected function calculateBedAvailability(): int
+    public function calculateBedAvailability(): int
     {
         $input = $this->getInput();
 
@@ -267,7 +288,7 @@ class Estimator
      * @return int
      * @throws InvalidNumberException
      */
-    protected function calculateDays(): int
+    public function calculateDays(): int
     {
         $input = $this->getInput();
 
@@ -289,7 +310,7 @@ class Estimator
      * @return int
      * @throws InvalidNumberException
      */
-    protected function calculateInfectionMultiplier(): int
+    public function calculateInfectionMultiplier(): int
     {
         $days = $this->calculateDays();
         $factor = $this->formatAsInt($days / 3);
@@ -303,7 +324,7 @@ class Estimator
      * @return int
      * @throws InvalidNumberException
      */
-    private function formatAsInt($number): int
+    public function formatAsInt($number): int
     {
         if (!is_numeric($number)) {
             throw new InvalidNumberException("{$number} is not a valid number");
