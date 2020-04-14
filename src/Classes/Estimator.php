@@ -163,8 +163,8 @@ class Estimator
                 // else set to the excess of 'severeCasesByRequestedTime'
 
                 $impact['hospitalBedsByRequestedTime'] = $this->formatAsInt(
-                    (int) $impact['severeCasesByRequestedTime'] <= $beds ?
-                        $beds :
+                        //(int) $impact['severeCasesByRequestedTime'] <= $beds ?
+                        //$beds :
                         $beds - (int) $impact['severeCasesByRequestedTime']
                 );
 
@@ -182,8 +182,8 @@ class Estimator
                 // else set to the excess of 'severeCasesByRequestedTime'
 
                 $severeImpact['hospitalBedsByRequestedTime'] = $this->formatAsInt(
-                    (int) $severeImpact['severeCasesByRequestedTime'] <= $beds ?
-                        $beds :
+                        //(int) $severeImpact['severeCasesByRequestedTime'] <= $beds ?
+                        //$beds :
                         $beds - (int) $severeImpact['severeCasesByRequestedTime']
                 );
 
