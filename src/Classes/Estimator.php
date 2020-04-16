@@ -44,7 +44,7 @@ class Estimator
         $this->data['data'] = $input;
     }
 
-    public function computeResponse()
+    public function computeResponse(): Estimator
     {
         $this->calculateCurrentlyInfected();
         $this->calculateInfectionsByRequestedTime();
@@ -53,6 +53,8 @@ class Estimator
         $this->calculateCasesForICUByRequestedTime();
         $this->calculateCasesForVentilatorsByRequestedTime();
         $this->calculateDollarsInFlight();
+
+        return $this;
     }
 
 
@@ -61,7 +63,7 @@ class Estimator
      *---------------------------------------------------------------------------------------------*/
 
 
-    public function calculateCurrentlyInfected()
+    public function calculateCurrentlyInfected(): Estimator
     {
         $input = $this->getInput();
         $impact = $this->getImpact();
@@ -81,9 +83,11 @@ class Estimator
             }
 
         }
+
+        return $this;
     }
 
-    public function calculateInfectionsByRequestedTime()
+    public function calculateInfectionsByRequestedTime(): Estimator
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -116,9 +120,11 @@ class Estimator
 
         } catch (InvalidNumberException $exception) {
         }
+
+        return $this;
     }
 
-    public function calculateSevereCasesByRequestedTime()
+    public function calculateSevereCasesByRequestedTime(): Estimator
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -144,9 +150,11 @@ class Estimator
             }
         } catch (InvalidNumberException $exception) {
         }
+
+        return $this;
     }
 
-    public function calculateHospitalBedsByRequestedTime()
+    public function calculateHospitalBedsByRequestedTime(): Estimator
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -180,9 +188,11 @@ class Estimator
 
         } catch (InvalidNumberException $exception) {
         }
+
+        return $this;
     }
 
-    public function calculateCasesForICUByRequestedTime()
+    public function calculateCasesForICUByRequestedTime(): Estimator
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -212,9 +222,11 @@ class Estimator
 
         } catch (InvalidNumberException $exception) {
         }
+
+        return $this;
     }
 
-    public function calculateCasesForVentilatorsByRequestedTime()
+    public function calculateCasesForVentilatorsByRequestedTime(): Estimator
     {
         $impact = $this->getImpact();
         $severeImpact = $this->getSevereImpact();
@@ -244,9 +256,11 @@ class Estimator
 
         } catch (InvalidNumberException $exception) {
         }
+
+        return $this;
     }
 
-    public function calculateDollarsInFlight()
+    public function calculateDollarsInFlight(): Estimator
     {
         $input = $this->getInput();
         $impact = $this->getImpact();
@@ -288,6 +302,8 @@ class Estimator
 
         } catch (InvalidNumberException $exception) {
         }
+
+        return $this;
     }
 
 
