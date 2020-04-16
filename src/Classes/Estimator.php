@@ -46,13 +46,13 @@ class Estimator
 
     public function computeResponse(): Estimator
     {
-        $this->calculateCurrentlyInfected();
-        $this->calculateInfectionsByRequestedTime();
-        $this->calculateSevereCasesByRequestedTime();
-        $this->calculateHospitalBedsByRequestedTime();
-        $this->calculateCasesForICUByRequestedTime();
-        $this->calculateCasesForVentilatorsByRequestedTime();
-        $this->calculateDollarsInFlight();
+        $this->calculateCurrentlyInfected()
+            ->calculateInfectionsByRequestedTime()
+            ->calculateSevereCasesByRequestedTime()
+            ->calculateHospitalBedsByRequestedTime()
+            ->calculateCasesForICUByRequestedTime()
+            ->calculateCasesForVentilatorsByRequestedTime()
+            ->calculateDollarsInFlight();
 
         return $this;
     }
