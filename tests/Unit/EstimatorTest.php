@@ -192,7 +192,9 @@ class EstimatorTest extends TestCase
     public function testCalculateDollarsInFlight()
     {
         $estimator = new Estimator($this->testInput);
-        $estimator->calculateDollarsInFlight();
+        $got = $estimator->calculateDollarsInFlight();
+
+        $this->assertInstanceOf(Estimator::class, $got);
 
         $got = $estimator->getData();
 
@@ -212,7 +214,9 @@ class EstimatorTest extends TestCase
     public function testCalculateCasesForVentilatorsByRequestedTime()
     {
         $estimator = new Estimator($this->testInput);
-        $estimator->calculateCasesForVentilatorsByRequestedTime();
+        $got = $estimator->calculateCasesForVentilatorsByRequestedTime();
+
+        $this->assertInstanceOf(Estimator::class, $got);
 
         $got = $estimator->getData();
 
@@ -232,7 +236,9 @@ class EstimatorTest extends TestCase
     public function testCalculateCasesForICUByRequestedTime()
     {
         $estimator = new Estimator($this->testInput);
-        $estimator->calculateCasesForICUByRequestedTime();
+        $got = $estimator->calculateCasesForICUByRequestedTime();
+
+        $this->assertInstanceOf(Estimator::class, $got);
 
         $got = $estimator->getData();
 
@@ -255,7 +261,9 @@ class EstimatorTest extends TestCase
             $this->testInput['totalHospitalBeds'] = pow($this->testInput['totalHospitalBeds'], $i);
 
             $estimator = new Estimator($this->testInput);
-            $estimator->calculateHospitalBedsByRequestedTime();
+            $got = $estimator->calculateHospitalBedsByRequestedTime();
+
+            $this->assertInstanceOf(Estimator::class, $got);
 
             $got = $estimator->getData();
 
@@ -276,7 +284,9 @@ class EstimatorTest extends TestCase
     public function testCalculateSevereCasesByRequestedTime()
     {
         $estimator = new Estimator($this->testInput);
-        $estimator->calculateSevereCasesByRequestedTime();
+        $got = $estimator->calculateSevereCasesByRequestedTime();
+
+        $this->assertInstanceOf(Estimator::class, $got);
 
         $got = $estimator->getData();
 
@@ -296,7 +306,9 @@ class EstimatorTest extends TestCase
     public function testCalculateInfectionsByRequestedTime()
     {
         $estimator = new Estimator($this->testInput);
-        $estimator->calculateInfectionsByRequestedTime();
+        $got = $estimator->calculateInfectionsByRequestedTime();
+
+        $this->assertInstanceOf(Estimator::class, $got);
 
         $got = $estimator->getData();
 
@@ -316,7 +328,9 @@ class EstimatorTest extends TestCase
     public function testCalculateCurrentlyInfected()
     {
         $estimator = new Estimator($this->testInput);
-        $estimator->calculateCurrentlyInfected();
+        $got = $estimator->calculateCurrentlyInfected();
+
+        $this->assertInstanceOf(Estimator::class, $got);
 
         $got = $estimator->getData();
 
